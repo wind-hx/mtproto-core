@@ -9,12 +9,6 @@
 /coverage
 
 # production
-/build
-/dist
-/package
-/dual-publish-tmp
-/src/tl/builder
-/src/tl/parser
 
 # misc
 .DS_Store
