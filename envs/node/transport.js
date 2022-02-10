@@ -11,8 +11,22 @@ class Transport extends Obfuscated {
     this.debug = baseDebug.extend(`transport-${this.dc.id}`);
     this.crypto = crypto;
     this.proxy = proxy;
+    this.destroyed = false
+    this.handleConnect = this.handleConnect.bind(this)
+    this.handleData = this.handleData.bind(this)
+    this.handleError = this.handleError.bind(this)
+    this.handleClose = this.handleClose.bind(this)
 
     this.connect();
+  }
+
+  destroy() {
+    this.destroyed = true;
+    this.debug('destroy');
+
+    if (this.socket && !this.socket.destroyed) {
+      this.socket.destroy();
+    }
   }
 
   get isAvailable() {
@@ -41,14 +55,14 @@ class Transport extends Obfuscated {
       this.socket = net.connect(
         this.dc.port,
         this.dc.ip,
-        this.handleConnect.bind(this)
+        this.handleConnect
       );
     }
     
 
-    this.socket.on('data', this.handleData.bind(this));
-    this.socket.on('error', this.handleError.bind(this));
-    this.socket.on('close', this.handleClose.bind(this));
+    this.socket.on('data', this.handleData);
+    this.socket.on('error', this.handleError);
+    this.socket.on('close', this.handleClose);
 
     this.debug('connect');
   }
@@ -97,7 +111,13 @@ class Transport extends Obfuscated {
       this.socket.destroy();
     }
 
-    this.connect();
+    this.socket.off('data', this.handleData);
+    this.socket.off('error', this.handleError);
+    this.socket.off('close', this.handleClose);
+    
+    if (!this.destroyed) {
+      this.connect();
+    }
   }
 
   async handleConnect() {
