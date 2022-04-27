@@ -35,7 +35,10 @@ class RPC {
     this.handleTransportOpen = this.handleTransportOpen.bind(this)
     this.handleTransportError = this.handleTransportError.bind(this)
     this.handleTransportMessage = this.handleTransportMessage.bind(this)
-
+    this.transport.on('open', this.handleTransportOpen);
+    this.transport.on('error', this.handleTransportError);
+    this.transport.on('message', this.handleTransportMessage);
+    
     this.updateSession();
 
     this.sendAcks = debounce(() => {
